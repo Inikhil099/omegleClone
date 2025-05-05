@@ -23,7 +23,6 @@ class UserManager {
         this.queue = this.queue.filter(e => e === socketId);
     }
     clearqueue() {
-        console.log("inside clear queue");
         console.log("length is", this.queue.length);
         if (this.queue.length < 2) {
             return;
@@ -35,17 +34,14 @@ class UserManager {
         if (!user1 || !user2) {
             return;
         }
-        console.log("creating room");
         const room = this.roomManager.createRoom(user1, user2);
         this.clearqueue();
     }
     initHandler(socket) {
         socket.on("offer", ({ sdp, roomId }) => {
-            console.log("offer recieved");
             this.roomManager.onOffer(roomId, sdp, socket.id);
         });
         socket.on("answer", ({ sdp, roomId }) => {
-            console.log("answer recieved");
             this.roomManager.onAnswer(roomId, sdp, socket.id);
         });
         socket.on("add-ice-candidate", ({ candidate, roomId, type }) => {

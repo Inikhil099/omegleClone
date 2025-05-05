@@ -47,8 +47,10 @@ const Room = ({
       }
 
       pc.onicecandidate = async(e)=>{
+        if(!e.candidate){
+          return;
+        }
         if(e.candidate){
-          
           socket.emit("add-ice-candidate",{
             candidate : e.candidate,
             type:"sender",
@@ -87,12 +89,9 @@ const Room = ({
 
 
       pc.onicecandidate = async(e)=>{
-
-
         if(!e.candidate){
           return;
         }
-
           if (e.candidate) {
             socket.emit("add-ice-candidate",{
               candidate : e.candidate,
@@ -102,7 +101,10 @@ const Room = ({
           }
       }
 
-      pc.ontrack = ({ track, type }) => {
+
+      pc.ontrack = (e) => {
+        const { track, type } = e;
+        console.error("inside on track")
         if (type == "audio") {
           // setremoteAudioTracks(track);
           // @ts-ignore
@@ -138,8 +140,6 @@ const Room = ({
 
 
     socket.on("add-ice-candidate",({candidate,type})=>{
-      console.log("inside add ice candidate")
-      console.log(candidate,type)
       if (type == "sender") {
         setreceivingPc(pc=>{
           pc?.addIceCandidate(candidate)

@@ -34,7 +34,6 @@ export class UserManager{
 
 
     clearqueue(){
-        console.log("inside clear queue")
         console.log("length is",this.queue.length)
         if (this.queue.length < 2) {
             return;
@@ -49,20 +48,17 @@ export class UserManager{
             return;
         }
 
-        console.log("creating room")
         const room = this.roomManager.createRoom(user1,user2)
         this.clearqueue()
     }
 
     initHandler(socket:Socket){
         socket.on("offer",({sdp,roomId}:{sdp:string,roomId:string})=>{
-            console.log("offer recieved")
             this.roomManager.onOffer(roomId,sdp,socket.id)
         })
 
         socket.on("answer",({sdp,roomId}:{sdp:string,roomId:string})=>{
             
-            console.log("answer recieved")
             
             this.roomManager.onAnswer(roomId,sdp,socket.id)
         })

@@ -1,5 +1,5 @@
 import { User } from "./UserManager";
-let globalroomno = 0;
+let globalroomno = 1;
 
 interface Room {
   user1: User;
@@ -31,8 +31,6 @@ export class RoomManager {
     }
     const recevingUser =
       room.user1.socket.id === senderSocketId ? room.user2 : room.user1;
-    // const user2 = this.room.get(roomId)?.user2; //the person made the  call offer
-    console.log("onoffer is running");
     recevingUser?.socket.emit("offer", {
       sdp,
       roomId,
@@ -45,10 +43,7 @@ export class RoomManager {
       return;
     }
 
-    const recevingUser =
-      room.user1.socket.id === senderSocketId ? room.user2 : room.user1;
-    // const user1 = this.room.get(roomId)?.user1; //the person who recieved the offer for the call
-    console.log("on answer is running");
+    const recevingUser = room.user1.socket.id === senderSocketId ? room.user2 : room.user1;
     recevingUser?.socket.emit("answer", {
       sdp,
       roomId,
@@ -56,23 +51,20 @@ export class RoomManager {
   }
 
   onIceCandidate(
+    candidate: any,
     roomId: string,
     senderSocketId: string,
-    candidate: any,
     type: "sender" | "receiver"
   ) {
     const room = this.room.get(roomId);
-    if (room) {
-      console.log("inside backend icecandidate");
-      const recevingUser =
-        room.user1.socket.id === senderSocketId ? room.user2 : room.user1;
-      recevingUser.socket.emit("add-ice-candidate", { candidate, roomId });
-    }
-
-    else{
-      console.log("room not found")
+    if (!room) {
       return;
     }
+
+    console.log("got it")
+    const recevingUser = room.user1.socket.id === senderSocketId ? room.user2 : room.user1;
+    recevingUser.socket.emit("add-ice-candidate", { candidate, roomId,type });
+
   }
 
   generate() {
