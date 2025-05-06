@@ -42,9 +42,9 @@ const Room = ({
       }
 
       if (localAudioTracks) {
-        
         pc.addTrack(localAudioTracks)
       }
+
 
       pc.onicecandidate = async(e)=>{
         if(!e.candidate){
@@ -102,27 +102,64 @@ const Room = ({
       }
 
 
-      pc.ontrack = (e) => {
-        const { track, type } = e;
-        console.error("inside on track")
-        if (type == "audio") {
-          // setremoteAudioTracks(track);
-          // @ts-ignore
-          remoteVideoRef.current?.srcObject.addTrack(track)
-        } else {
-          // @ts-ignore
-          remoteVideoRef.current?.srcObject.addTrack(track)
-          // setremoteVideoTracks(track);
-        }
-        // @ts-ignore 
-        remoteVideoRef.current.play()
-      };
-
+      
+      console.log("emitting answer after ontrack")
       socket.emit("answer", {
         roomId,
         sdp: sdp,
       });
+
+      setTimeout(() => {
+        const track1 = pc.getTransceivers()[0].receiver.track
+        const track2 = pc.getTransceivers()[1].receiver.track
+        if(track1.kind == "audio"){
+          setremoteAudioTracks(track1)
+          setremoteVideoTracks(track2)
+        }
+        else{
+          setremoteVideoTracks(track2)
+          setremoteAudioTracks(track1)
+        }
+
+        
+        // @ts-ignore
+        remoteVideoRef.current?.srcObject.addTrack(track1)
+        // @ts-ignore
+        remoteVideoRef.current?.srcObject.addTrack(track2)
+        // @ts-ignore
+        remoteVideoRef.current.play()
+
+
+      }, 5000);
+
+// <<----------------------------------------------------------------------------------------->>
+        // pc.ontrack = (e) => {
+        //   const { track, type } = e;
+        //   console.error("inside on track")
+        //   if (type == "audio") {
+        //     // setremoteAudioTracks(track);
+        //     // @ts-ignore
+        //   } else {
+        //     // @ts-ignore
+        //     remoteVideoRef.current?.srcObject.addTrack(track)
+        //     // setremoteVideoTracks(track);
+        //   }
+        //   // @ts-ignore 
+        //   remoteVideoRef.current.play()
+        // };
+
+// <<--------------------------------------------------------------------------------------------->>
+
+
+
+
+      
     });
+
+
+
+
+
 
     socket.on("answer", ({ roomId, sdp:remotesdp }) => {
       setlobby(false);
@@ -131,6 +168,8 @@ const Room = ({
         return pc;
       });
       console.log("loop closed")
+
+      
     });
 
 
